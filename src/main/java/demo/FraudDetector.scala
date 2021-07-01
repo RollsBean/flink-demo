@@ -12,10 +12,22 @@ object FraudDetector {
   val LARGE_AMOUNT: Double = 500.00
   val ONE_MINUTE: Long     = 60 * 1000L
 }
-
+/*
+ *
+ * @author: 景行
+ * @author: Kevin Fan
+ * @date: 2021/7/1
+ */
 class FraudDetector extends KeyedProcessFunction[Long, Transaction, Alert]{
 
+  /**
+   * <code>ValueState</code> 提供了三个方法，update 更新状态；value 获取值；clear 清空状态
+   */
   @transient private var flagState: ValueState[java.lang.Boolean] = _
+
+  /**
+   * 定义 timerState 来保存时间状态
+   */
   @transient private var timerState: ValueState[java.lang.Long] = _
 
   @throws[Exception]
@@ -27,6 +39,21 @@ class FraudDetector extends KeyedProcessFunction[Long, Transaction, Alert]{
     timerState = getRuntimeContext.getState(timerDescriptor)
   }
 
+  /**
+   * 逻辑：
+   * <br>
+   * <p>如果交易小于SMALL_AMOUNT，则将状态置为true；
+   * 如果状态不为null，也就是状态是true，并且交易大于LARGE_AMOUNT，则发送一条告警日志
+   * <p>无论交易是否大于LARGE_AMOUNT，都需要重制状态为null，因为只检测两个相邻的交易
+   * <br>
+   * 更新v2：
+   * <p>
+   *   添加上时间限制，只有在一分钟内发生上面这种情况才判断为欺诈交易
+   * @param transaction
+   * @param context
+   * @param collector
+   * @throws
+   */
   @throws[Exception]
   override def processElement(transaction: Transaction,
                               context: KeyedProcessFunction[Long, Transaction, Alert]#Context,
@@ -66,5 +93,19 @@ class FraudDetector extends KeyedProcessFunction[Long, Transaction, Alert]{
     // clean up all states
     timerState.clear()
     flagState.clear()
+  }
+
+  /**
+   * 定时器到时之后的处理
+   * <br>
+   * 这里需要在定时器到时之后，清除它的状态信息（标识状态和时间状态）
+   * @param timestamp
+   * @param ctx
+   * @param out
+   */
+  override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Long, Transaction, Alert]#OnTimerContext, out: Collector[Alert]): Unit = {
+    // remove key state
+    flagState.clear()
+    timerState.clear()
   }
 }
