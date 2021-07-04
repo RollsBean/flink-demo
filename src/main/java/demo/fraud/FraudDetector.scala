@@ -1,4 +1,4 @@
-package demo
+package demo.fraud
 
 import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
 import org.apache.flink.api.scala.typeutils.Types

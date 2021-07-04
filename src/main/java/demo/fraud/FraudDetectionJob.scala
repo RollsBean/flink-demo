@@ -1,10 +1,16 @@
-package demo
+package demo.fraud
 
-import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.walkthrough.common.entity.{Alert, Transaction}
 import org.apache.flink.walkthrough.common.sink.AlertSink
 import org.apache.flink.walkthrough.common.source.TransactionSource
 
+/**
+ *
+ * @author 景行
+ * @author Kevin Fan
+ * @date 2021/07/04
+ * */
 /*
  * 如果出现小于1美元然后紧跟着一个大于500美元的交易，则输出报警信息
  * @author: 景行
@@ -14,6 +20,7 @@ object FraudDetectionJob {
 
   /**
    * 参考 Flink 官方文档
+   *
    * @see
    * @param args 默认
    */
