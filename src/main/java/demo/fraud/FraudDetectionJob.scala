@@ -1,6 +1,6 @@
 package demo.fraud
 
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.walkthrough.common.entity.{Alert, Transaction}
 import org.apache.flink.walkthrough.common.sink.AlertSink
 import org.apache.flink.walkthrough.common.source.TransactionSource
